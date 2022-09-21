@@ -14,20 +14,24 @@ export const Create: React.FC = () => {
         peer.on('open', () => {
             console.log('ID: ' + peer.id)
             setYourConnectionId(peer.id)
+            setData(value => [...value, `Host is ready "${peer.id}"`])
         })
 
         // Wait till you get a connection. Data will be the sent data.
         peer.on('connection', (conn) => {
             setConnection(value => [...value, conn.connectionId])
+            setData(value => [...value, `Connection open "${conn.connectionId}"`])
+
             conn.on('data', (data) => {
 
                 // Print sent data
                 console.log(data)
-                setData(value => [...value, data])
+                setData(value => [...value, `Data from "${conn.connectionId}": ${data}`])
             })
 
             conn.on('close', () => {
                 setConnection(value => value.filter(id => conn.connectionId !== id))
+                setData(value => [...value, `Connection closed "${conn.connectionId}"`])
             })
         })
 
@@ -38,9 +42,13 @@ export const Create: React.FC = () => {
         {yourConnectionId && <a target="_blank" href={`/join/${yourConnectionId}`}>/join/{yourConnectionId}</a>}
 
         <h3>Connected</h3>
-        {connection.map((item, index) => <p key={index}>{item}</p>)}
+        <ul>
+            {connection.map((item, index) => <li key={index}>{item}</li>)}
+        </ul>
 
-        <h3>Recieved data:</h3>
-        {data.map((item, index) => <p key={index}>{item}</p>)}
+        <h3>Log:</h3>
+        <ul>
+            {data.map((item, index) => <li key={index}>{item}</li>)}
+        </ul>
     </>
 }
